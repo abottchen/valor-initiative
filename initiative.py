@@ -2,7 +2,6 @@
 
 import sys
 import getopt
-import json
 import re
 import random
 from colorcodes import clr
