@@ -57,11 +57,24 @@ def addCreatureRoll(d, r, c):
         d[r] = [c]
 
 
+def parseCreature(creatureStr):
+        try:
+          name, roll, bonus = creatureStr.split(":")
+        except ValueError:
+            try:
+              name, roll = creatureStr.split(":")
+              bonus = "0"
+            except Exception as e:
+                print("Error processing player string: '" + creatureStr + "'")
+                print(e)
+                sys.exit(1)
+        return(name.strip(), int(roll.strip()), int(bonus.strip()))
+
 def main(argv):
     creatures = ""
     players = ""
     try:
-        opts, args = getopt.getopt(argv, "hc:p:", ["creatures=", "players="])
+        opts, _ = getopt.getopt(argv, "hc:p:", ["creatures=", "players="])
     except getopt.GetoptError:
         print('randomEncounter.py -c <creaturelist> -p <playerlist>')
         sys.exit(2)
@@ -79,37 +92,13 @@ def main(argv):
     # List comes in as creature,number,bonus,creature,number,bonus,creature,number,bonus...
     # -c "Biker:12:0,Carlito:1:0" -p "Adam:4,David:2,Max:10,Simon:6,Steve:5"
 
-    for playerType in players.split(','):
-        try:
-          name, roll, bonus = playerType.split(":")
-        except ValueError:
-            try:
-              name, roll = playerType.split(":")
-              bonus = "0"
-            except Exception as e:
-                print("Error processing player string: '" + playerType + "'")
-                print(e)
-                sys.exit(1)
-        name = name.strip()
-        roll = int(roll.strip())
-        bonus = int(bonus.strip())
-        name = clr.WHITE + name.strip() + clr.ENDC
+    for player in players.split(','):
+        name, roll, bonus = parseCreature(player)
+        name = clr.WHITE + name + clr.ENDC
         addCreatureRoll(initOrder, roll, [name, bonus])
 
-    for creatureType in creatures.split(','):
-        try:
-            name, number, bonus = creatureType.split(":")
-        except ValueError:
-            try:
-              name, number = creatureType.split(":")
-              bonus = "0"
-            except Exception as e:
-                print("Error processing creature string: '" + creatureType + "'")
-                print(e)
-                sys.exit(1)
-        name = name.strip()
-        number = int(number.strip())
-        bonus = int(bonus.strip())
+    for creature in creatures.split(','):
+        name, number, bonus = parseCreature(creature)
         if number > 1:
             localColors = list(clr.COLORS.keys())
         else:
