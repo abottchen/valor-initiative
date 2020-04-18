@@ -57,17 +57,18 @@ def addCreatureRoll(d, r, c):
 
 
 def parseCreature(creatureStr):
+    try:
+        name, roll, bonus = creatureStr.split(":")
+    except ValueError:
         try:
-          name, roll, bonus = creatureStr.split(":")
-        except ValueError:
-            try:
-              name, roll = creatureStr.split(":")
-              bonus = "0"
-            except Exception as e:
-                print("Error processing player string: '" + creatureStr + "'")
-                print(e)
-                sys.exit(1)
-        return(name.strip(), int(roll.strip()), int(bonus.strip()))
+            name, roll = creatureStr.split(":")
+            bonus = "0"
+        except Exception as e:
+            print("Error processing player string: '" + creatureStr + "'")
+            print(e)
+            sys.exit(1)
+    return(name.strip(), int(roll.strip()), int(bonus.strip()))
+
 
 def main(argv):
     creatures = ""
@@ -91,25 +92,27 @@ def main(argv):
     # List comes in as creature,number,bonus,creature,number,bonus,creature,number,bonus...
     # -c "Biker:12:0,Carlito:1:0" -p "Adam:4,David:2,Max:10,Simon:6,Steve:5"
 
-    for player in players.split(','):
-        name, roll, bonus = parseCreature(player)
-        name = clr.WHITE + name + clr.ENDC
-        addCreatureRoll(initOrder, roll, [name, bonus])
+    if players != "":
+        for player in players.split(','):
+            name, roll, bonus = parseCreature(player)
+            name = clr.WHITE + name + clr.ENDC
+            addCreatureRoll(initOrder, roll, [name, bonus])
 
-    for creature in creatures.split(','):
-        name, number, bonus = parseCreature(creature)
-        if number > 1:
-            localColors = list(clr.COLORS.keys())
-        else:
-            localColors = ['']
-        for _ in range(number):
-            c = localColors.pop(0)
-            if c == "":
-                creatureName = name
+    if creatures != "":
+        for creature in creatures.split(','):
+            name, number, bonus = parseCreature(creature)
+            if number > 1:
+                localColors = list(clr.COLORS.keys())
             else:
-                creatureName = clr.COLORS[c] + c + " " + name + clr.ENDC
-            roll = random.randint(1, 10) + bonus
-            addCreatureRoll(initOrder, roll, [creatureName, bonus])
+                localColors = ['']
+            for _ in range(number):
+                c = localColors.pop(0)
+                if c == "":
+                    creatureName = name
+                else:
+                    creatureName = clr.COLORS[c] + c + " " + name + clr.ENDC
+                roll = random.randint(1, 10) + bonus
+                addCreatureRoll(initOrder, roll, [creatureName, bonus])
 
     handleReroll(initOrder)
     print("---===== Final Order =====---")
